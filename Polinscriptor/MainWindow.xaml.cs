@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,27 @@ namespace Polinscriptor
     /// </summary>
     public partial class MainWindow : Window
     {
+        private List<string> filePath;
         public MainWindow()
         {
             InitializeComponent();
         }
+
+        #region UserActions
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                //TODO: caricare un media file di tipo FLAC
+            };
+        }
+
+        #endregion
     }
 }
