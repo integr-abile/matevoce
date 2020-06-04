@@ -13,6 +13,6 @@ namespace Polinscriptor
     /// </summary>
     public partial class App : Application
     {
-
+        public static ApplicationData Data { get; } = new ApplicationData();
     }
 }

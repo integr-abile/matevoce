@@ -5,10 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Polinscriptor"
         mc:Ignorable="d"
-        Title="Poliscriptor" Height="450" Width="800">
+        Title="Poliscriptor" Height="500" Width="800">
     <Window.Resources>
         <ResourceDictionary>
-            
+            <Style TargetType="TextBlock"
+                   x:Key="TitleText">
+                <Setter Property="FontSize" Value="22"/>
+            </Style>
+            <Style TargetType="TextBlock"
+                   x:Key="NormalText">
+                <Setter Property="FontSize" Value="16"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
@@ -18,33 +25,119 @@
             </MenuItem>
             <MenuItem Click="About_Click" Header="About"/>
         </Menu>
-        <ProgressBar x:Name="ProgressBar" 
-                     DockPanel.Dock="Top" 
-                     IsIndeterminate="True"
-                     Visibility="Hidden"/>
         <Grid DockPanel.Dock="Bottom">
             <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition/>
-                <RowDefinition Height="20"/>
+                <RowDefinition Height="*"/><!-- Istruzioni-->
+                <RowDefinition Height="*"/><!-- TextArea trascrizioni-->
+                <RowDefinition Height="20"/><!-- Status bar-->
             </Grid.RowDefinitions>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
+            <!-- Grid istruzioni -->
+            <Grid Margin="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
-                <Label Content="Lingua"/>
-                <ComboBox IsEditable="False"
-                      Width="100" 
-                      HorizontalAlignment="Left" Grid.Column="1"/>
+                <TextBlock HorizontalAlignment="Center"
+                           Style="{StaticResource TitleText}"
+                           VerticalAlignment="Center"
+                           Grid.Row="0">
+                    Polinscriptor ti aiuta a trascrivere i file audio in più lingue
+                </TextBlock>
+                <WrapPanel Grid.Row="1">
+                    <TextBlock Style="{StaticResource NormalText}">
+                        1) Converti il file audio in formato FLAC andando a
+                        <Hyperlink NavigateUri="https://www.zamzar.com"
+                                   RequestNavigate="FlacConverter_RequestNavigate">
+                            questo link
+                        </Hyperlink>
+                        :
+                    </TextBlock>
+                </WrapPanel>
+                <WrapPanel Grid.Row="2">
+                    <TextBlock Style="{StaticResource NormalText}">
+                        2) Seleziona il file che hai appena convertito
+                    </TextBlock>
+                    <Button Content="Apri"
+                            Margin="16,0,0,0"
+                            Width="100"
+                            Click="Open_Click"/>
+                </WrapPanel>
+                <WrapPanel Grid.Row="3">
+                    <TextBlock Style="{StaticResource NormalText}">
+                        3) Seleziona la lingua del file audio:
+                    </TextBlock>
+                    <ComboBox x:Name="LangCombobox"
+                              Width="100"
+                              Margin="16,0,0,0">
+                        <ComboBoxItem IsSelected="True">it-IT</ComboBoxItem>
+                        <ComboBoxItem>en-US</ComboBoxItem>
+                    </ComboBox>
+                </WrapPanel>
+                <WrapPanel Grid.Row="4">
+                    <TextBlock Style="{StaticResource NormalText}">
+                        4) Traduci! -> 
+                    </TextBlock>
+                    <Button Margin="16,0,0,0" 
+                            Click="Translate_Click"
+                            Width="100"
+                            Content="Traduci"/>
+                </WrapPanel>
             </Grid>
-            <TextBox TextWrapping="Wrap"
-                     AcceptsReturn="True"
-                     Grid.Row="1"/>
+            <!-- Grid trascrizione-->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <WrapPanel Grid.Row="0"
+                           Margin="8,0,0,0"
+                           VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource NormalText}">
+                        Trascrizione:
+                    </TextBlock>
+                    <Button Content="Copia"
+                            Width="100"
+                            Margin="16,0,0,0"
+                            Click="CopyTranscription_Click"/>
+                </WrapPanel>
+                <TextBox x:Name="TrascriptionTextBox" TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         Grid.Row="1"
+                         Margin="8,0,0,0"/>
+            </Grid>
             <StatusBar Grid.Row="2">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="75"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="75"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
                 <StatusBarItem>
-                    <TextBlock x:Name="GoogleAPIStatusTextBlock"/>
+                    <TextBlock x:Name="StateStatusLbl"/>
+                </StatusBarItem>
+                <Separator Grid.Column="1"/>
+                <StatusBarItem Grid.Column="2">
+                    <TextBlock x:Name="FileNameStatusTxt"/>
+                </StatusBarItem>
+                <Separator Grid.Column="3"/>
+                <StatusBarItem Grid.Column="4"
+                               HorizontalContentAlignment="Center">
+                    <ProgressBar x:Name="ProgressBar" IsIndeterminate="True"
+                                 Width="60"
+                                 Height="18"
+                                 VerticalAlignment="Center"
+                                 Value="50"/>
                 </StatusBarItem>
             </StatusBar>
         </Grid>

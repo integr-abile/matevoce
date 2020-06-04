@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Polinscriptor
     /// </summary>
     public partial class MainWindow : Window
     {
-        private List<string> filePath;
+        private string filePath;
         public MainWindow()
         {
             InitializeComponent();
@@ -31,17 +32,37 @@ namespace Polinscriptor
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
-
+            //TODO: aprire finestra coi riferimenti base alla versione, laboratorio polin, anno, ecc...
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "FLAC Audio files (*.FLAC)|*.FLAC";
+            if(ofd.ShowDialog() == true)
             {
-                //TODO: caricare un media file di tipo FLAC
-            };
+                filePath = ofd.FileName;
+            }
+        }
+
+        private void Translate_Click(object sender, RoutedEventArgs e)
+        {
+            //chiamata alle API di Google
+        }
+
+        private void FlacConverter_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            //open browser
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true});
+            e.Handled = true;
+        }
+
+        private void CopyTranscription_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(TrascriptionTextBox.Text);
         }
 
         #endregion
+
     }
 }
