@@ -29,12 +29,11 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/><!-- Istruzioni-->
                 <RowDefinition Height="*"/><!-- TextArea trascrizioni-->
-                <RowDefinition Height="20"/><!-- Status bar-->
+                <RowDefinition Height="30"/><!-- Status bar-->
             </Grid.RowDefinitions>
             <!-- Grid istruzioni -->
             <Grid Margin="16">
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
@@ -49,24 +48,17 @@
                 </TextBlock>
                 <WrapPanel Grid.Row="1">
                     <TextBlock Style="{StaticResource NormalText}">
-                        1) Converti il file audio in formato FLAC andando a
-                        <Hyperlink NavigateUri="https://www.zamzar.com"
-                                   RequestNavigate="FlacConverter_RequestNavigate">
-                            questo link
-                        </Hyperlink>
-                        :
-                    </TextBlock>
-                </WrapPanel>
-                <WrapPanel Grid.Row="2">
-                    <TextBlock Style="{StaticResource NormalText}">
-                        2) Seleziona il file che hai appena convertito
+                        1) Seleziona il file audio che vuoi trascrivere
                     </TextBlock>
                     <Button Content="Apri"
                             Margin="16,0,0,0"
                             Width="100"
                             Click="Open_Click"/>
+                    <TextBlock Margin="8,0,0,0"
+                               x:Name="ChosenFileTextBlock"
+                               Width="Auto"/>
                 </WrapPanel>
-                <WrapPanel Grid.Row="3">
+                <WrapPanel Grid.Row="2">
                     <TextBlock Style="{StaticResource NormalText}">
                         3) Seleziona la lingua del file audio:
                     </TextBlock>
@@ -77,11 +69,11 @@
                         <ComboBoxItem>en-US</ComboBoxItem>
                     </ComboBox>
                 </WrapPanel>
-                <WrapPanel Grid.Row="4">
+                <WrapPanel Grid.Row="3">
                     <TextBlock Style="{StaticResource NormalText}">
                         4) Traduci! -> 
                     </TextBlock>
-                    <Button Margin="16,0,0,0" 
+                    <Button x:Name="TranslateBtn" Margin="16,0,0,0" 
                             Click="Translate_Click"
                             Width="100"
                             Content="Traduci"/>
@@ -99,12 +91,12 @@
                     <TextBlock Style="{StaticResource NormalText}">
                         Trascrizione:
                     </TextBlock>
-                    <Button Content="Copia"
+                    <Button x:Name="CopyTranscriptionBtn" Content="Copia"
                             Width="100"
                             Margin="16,0,0,0"
                             Click="CopyTranscription_Click"/>
                 </WrapPanel>
-                <TextBox x:Name="TrascriptionTextBox" TextWrapping="Wrap"
+                <TextBox x:Name="TranscriptionTextBox" TextWrapping="Wrap"
                          AcceptsReturn="True"
                          Grid.Row="1"
                          Margin="8,0,0,0"/>
@@ -128,7 +120,7 @@
                 </StatusBarItem>
                 <Separator Grid.Column="1"/>
                 <StatusBarItem Grid.Column="2">
-                    <TextBlock x:Name="FileNameStatusTxt"/>
+                    <TextBlock x:Name="FilePathStatusTxt"/>
                 </StatusBarItem>
                 <Separator Grid.Column="3"/>
                 <StatusBarItem Grid.Column="4"

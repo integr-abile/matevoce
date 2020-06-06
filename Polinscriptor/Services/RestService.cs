@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Polinscriptor.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -42,7 +43,6 @@ namespace Polinscriptor.Services
                 return;
 
             req.ContentType = contentType;
-            req.Headers.Add(HttpRequestHeader.ContentEncoding, Encoding.UTF8.HeaderName);
             using (BufferedStream w = new BufferedStream(await req.GetRequestStreamAsync()))
             {
                 byte[] data = Encoding.UTF8.GetBytes(content);
@@ -59,7 +59,7 @@ namespace Polinscriptor.Services
         }
 
 
-        public async Task<APIAnswer> PostRequest(string query, string jsonContent, IDictionary<string,string> requestHeaders = null)
+        public async Task<APIAnswer> PostRequest(string query, string jsonContent, IDictionary<string, string> requestHeaders = null)
         {
             try
             {
@@ -72,15 +72,17 @@ namespace Polinscriptor.Services
                     JObject jsonResponse = JObject.Parse(resContent);
                     return new APIAnswer(response.StatusCode, jsonResponse);
 
-                } catch(JsonReaderException e)
+                }
+                catch (JsonReaderException e)
                 {
                     return new APIAnswer(response.StatusCode, null);
                 }
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 throw new Exception("Errore sconosciuto");
             }
         }
-        
+
     }
 }
