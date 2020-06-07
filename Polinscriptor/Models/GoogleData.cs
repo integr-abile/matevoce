@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Polinscriptor.Models
 {
-    class ShortGoogleDataConfig
+    class GoogleDataConfig
     {
         [JsonProperty("encoding")]
         public string Encoding { get; set; }

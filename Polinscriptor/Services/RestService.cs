@@ -84,5 +84,32 @@ namespace Polinscriptor.Services
             }
         }
 
+        public async Task<APIAnswer> GetRequest(string query, string jsonContent=null, IDictionary<string, string> requestHeaders = null)
+        {
+            try
+            {
+                HttpWebRequest req = CreateRequest(HttpMethod.Get.Method, query, requestHeaders);
+                await WriteContentAsync(req, jsonContent, "application/json");
+                var response = await GetResponseAsync(req);
+                var resContent = await ReadContentAsync(response);
+                try
+                {
+                    JObject jsonResponse = JObject.Parse(resContent);
+                    return new APIAnswer(response.StatusCode, jsonResponse);
+
+                }
+                catch (JsonReaderException e)
+                {
+                    return new APIAnswer(response.StatusCode, null);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Errore sconosciuto");
+            }
+        }
+
+
+
     }
 }

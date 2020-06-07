@@ -176,7 +176,7 @@ namespace Polinscriptor
                 return;
             if (isShortFile)
             {
-                var dataConfig = new ShortGoogleDataConfig
+                var dataConfig = new GoogleDataConfig
                 {
                     SampleRateHz = curAudioFile.SampleRateHz,
                     Encoding = "LINEAR16",
@@ -207,7 +207,43 @@ namespace Polinscriptor
             }
             else
             {
-                //google long API
+                var dataConfig = new GoogleDataConfig
+                {
+                    SampleRateHz = curAudioFile.SampleRateHz,
+                    Encoding = "LINEAR16",
+                    LanguageCode = ((ComboBoxItem)LangCombobox.SelectedItem).Content.ToString()
+                };
+                JObject audioJObj = new JObject();
+                audioJObj["config"] = JObject.FromObject(dataConfig);
+                JObject audioContentJObj = new JObject();
+                audioContentJObj["content"] = audioBase64;
+                audioJObj["audio"] = audioContentJObj;
+                string json = audioJObj.ToString();
+                IsRestRequestRunning = true;
+                StatoApp = AppState.Recognizing;
+                var (success, opName) = await new APIController().SendLongTranslationRequest(json);
+                if (success)
+                {
+                    var (getTranslationSuccess, mostProbableTranscription) = await new APIController().GetTranslationFromGoogleOperationName(opName);
+                    if (getTranslationSuccess)
+                    {
+                        StatoApp = AppState.Done;
+                        MostProbableTranscription = mostProbableTranscription.Text;
+                    }
+                    else
+                    {
+                        StatoApp = AppState.Error;
+                        MostProbableTranscription = string.Empty;
+                        MessageBox.Show("C'è stato un errore nella chiamata alle API di Google.");
+                    }
+                }
+                else
+                {
+                    StatoApp = AppState.Error;
+                    MostProbableTranscription = string.Empty;
+                    MessageBox.Show("C'è stato un errore nella chiamata alle API di Google");
+                }
+
             }
                 
         }

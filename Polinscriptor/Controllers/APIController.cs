@@ -36,6 +36,47 @@ namespace Polinscriptor.Controllers
             {
                 return (false, null);
             }
-        }  
+        }
+        
+        public async Task<(bool,string)> SendLongTranslationRequest(string json)
+        {
+            try
+            {
+                var answer = await new RestService().PostRequest(string.Format(longAudioURL, App.Data.G_API_KEY), json);
+                if(answer.StatusCode == HttpStatusCode.OK)
+                {
+                    var operationName = (string)answer.JsonAnswer["name"];
+                    return (true, operationName);
+                }
+                return (false, null);
+
+            } catch (Exception e)
+            {
+                return (false, null);
+            }
+        }
+
+        public async Task<(bool,Transcription)> GetTranslationFromGoogleOperationName(string googleOperationName)
+        {
+            try
+            {
+                var answer = await new RestService().GetRequest(string.Format(googleSttOperationURL, googleOperationName, App.Data.G_API_KEY));
+                if(answer.StatusCode == HttpStatusCode.OK)
+                {
+                    var response = (JObject)answer.JsonAnswer["response"];
+                    var results = (JObject)response["results"][0];
+                    var alternatives = results.ToObject<Alternatives>();
+                    var mostProbableTranscriptionConfidence = alternatives.TranscriptionAlternatives.Max(alternative => alternative.Confidence);
+                    var mostProbableTranscription = from alternative in alternatives.TranscriptionAlternatives
+                                                    where alternative.Confidence == mostProbableTranscriptionConfidence
+                                                    select alternative;
+                    return (true, mostProbableTranscription.First());
+                }
+                return (false, null);
+            } catch (Exception e)
+            {
+                return (false, null);
+            }
+        }
     }
 }
