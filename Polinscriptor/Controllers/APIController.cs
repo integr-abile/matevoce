@@ -14,8 +14,8 @@ namespace Polinscriptor.Controllers
     class APIController
     {
         private string shortAudioURL = "https://speech.googleapis.com/v1/speech:recognize?key={0}";
-        private string longAudioURL = "https://speech.googleapis.com/v1/speech:longrunningrecognize?key={0}";
-        private string googleSttOperationURL = "https://speech:googleapis.com/v1/operations/{0}?key={1}";
+        //Non usiamo le long api perchè richiedono che per file di durata superiore a 1 minuto, essi debbano essere contenuti in GoogleCloudStore e non possono essere mandati in Base64
+        //nemmeno tramite le API long running recognizing
 
         public async Task<(bool,Transcription)> TranslateShortText(string json)
         {
@@ -33,47 +33,6 @@ namespace Polinscriptor.Controllers
                 }
                 return (false, null);
             } catch(Exception e)
-            {
-                return (false, null);
-            }
-        }
-        
-        public async Task<(bool,string)> SendLongTranslationRequest(string json)
-        {
-            try
-            {
-                var answer = await new RestService().PostRequest(string.Format(longAudioURL, App.Data.G_API_KEY), json);
-                if(answer.StatusCode == HttpStatusCode.OK)
-                {
-                    var operationName = (string)answer.JsonAnswer["name"];
-                    return (true, operationName);
-                }
-                return (false, null);
-
-            } catch (Exception e)
-            {
-                return (false, null);
-            }
-        }
-
-        public async Task<(bool,Transcription)> GetTranslationFromGoogleOperationName(string googleOperationName)
-        {
-            try
-            {
-                var answer = await new RestService().GetRequest(string.Format(googleSttOperationURL, googleOperationName, App.Data.G_API_KEY));
-                if(answer.StatusCode == HttpStatusCode.OK)
-                {
-                    var response = (JObject)answer.JsonAnswer["response"];
-                    var results = (JObject)response["results"][0];
-                    var alternatives = results.ToObject<Alternatives>();
-                    var mostProbableTranscriptionConfidence = alternatives.TranscriptionAlternatives.Max(alternative => alternative.Confidence);
-                    var mostProbableTranscription = from alternative in alternatives.TranscriptionAlternatives
-                                                    where alternative.Confidence == mostProbableTranscriptionConfidence
-                                                    select alternative;
-                    return (true, mostProbableTranscription.First());
-                }
-                return (false, null);
-            } catch (Exception e)
             {
                 return (false, null);
             }

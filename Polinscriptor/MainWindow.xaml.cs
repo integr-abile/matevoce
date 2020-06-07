@@ -176,18 +176,7 @@ namespace Polinscriptor
                 return;
             if (isShortFile)
             {
-                var dataConfig = new GoogleDataConfig
-                {
-                    SampleRateHz = curAudioFile.SampleRateHz,
-                    Encoding = "LINEAR16",
-                    LanguageCode = ((ComboBoxItem)LangCombobox.SelectedItem).Content.ToString()
-                };
-                JObject audioJObj = new JObject();
-                audioJObj["config"] = JObject.FromObject(dataConfig);
-                JObject audioContentJObj = new JObject();
-                audioContentJObj["content"] = audioBase64;
-                audioJObj["audio"] = audioContentJObj;
-                string json = audioJObj.ToString();
+                string json = GoogleShortAPIJsonPayload;
                 IsRestRequestRunning = true;
                 StatoApp = AppState.Recognizing;
                 var (success, mostProbableTranscription) = await new APIController().TranslateShortText(json);
@@ -205,7 +194,23 @@ namespace Polinscriptor
                     MessageBox.Show("C'è stato un errore nella chiamata alle API di Google");
                 }
             }
-            else
+            else //se il file è lungo...
+            {
+                //split audio in file di durata ciascuno di un minuto mentre l'ultimo con durata <1 min creando file separati <nomeFile>-<num_parte>-wav
+                //leggere i file separatamente e tradurli con le API STT short
+                //concatenare man mano i risultati delle varie trascrizioni
+
+                //questa cosa andrà in un for per ogni pezzo di audio...
+                string json = GoogleShortAPIJsonPayload;
+                IsRestRequestRunning = true;
+                StatoApp = AppState.Recognizing;
+            }
+                
+        }
+        
+        private string GoogleShortAPIJsonPayload
+        {
+            get
             {
                 var dataConfig = new GoogleDataConfig
                 {
@@ -218,34 +223,8 @@ namespace Polinscriptor
                 JObject audioContentJObj = new JObject();
                 audioContentJObj["content"] = audioBase64;
                 audioJObj["audio"] = audioContentJObj;
-                string json = audioJObj.ToString();
-                IsRestRequestRunning = true;
-                StatoApp = AppState.Recognizing;
-                var (success, opName) = await new APIController().SendLongTranslationRequest(json);
-                if (success)
-                {
-                    var (getTranslationSuccess, mostProbableTranscription) = await new APIController().GetTranslationFromGoogleOperationName(opName);
-                    if (getTranslationSuccess)
-                    {
-                        StatoApp = AppState.Done;
-                        MostProbableTranscription = mostProbableTranscription.Text;
-                    }
-                    else
-                    {
-                        StatoApp = AppState.Error;
-                        MostProbableTranscription = string.Empty;
-                        MessageBox.Show("C'è stato un errore nella chiamata alle API di Google.");
-                    }
-                }
-                else
-                {
-                    StatoApp = AppState.Error;
-                    MostProbableTranscription = string.Empty;
-                    MessageBox.Show("C'è stato un errore nella chiamata alle API di Google");
-                }
-
+                return audioJObj.ToString();
             }
-                
         }
 
         private void CopyTranscription_Click(object sender, RoutedEventArgs e)
