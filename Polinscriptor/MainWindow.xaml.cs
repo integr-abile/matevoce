@@ -67,6 +67,7 @@ namespace Polinscriptor
             {
                 filePath = value;
                 FilePathStatusTxt.Text = value;
+                ManageButtonsState();
             }
         }
 
@@ -195,10 +196,12 @@ namespace Polinscriptor
                 {
                     Debug.WriteLine(mostProbableTranscription);
                     StatoApp = AppState.Done;
+                    MostProbableTranscription = mostProbableTranscription.Text;
                 }
                 else
                 {
                     StatoApp = AppState.Error;
+                    MostProbableTranscription = string.Empty;
                     MessageBox.Show("C'è stato un errore nella chiamata alle API di Google");
                 }
             }
