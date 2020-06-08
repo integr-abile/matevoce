@@ -37,6 +37,7 @@ namespace Polinscriptor
         private bool isRestRequestRunning;
         private bool isShortFile;
         private WAVFile curAudioFile;
+        private string googleCompliantAudioFilePath;
         public AppState StatoApp
         {
             get => appState;
@@ -139,7 +140,7 @@ namespace Polinscriptor
                 var filePath = ofd.FileName;
                 try
                 {
-                    var googleCompliantAudioFilePath = $"{System.IO.Path.GetDirectoryName(filePath)}\\polinscriptor_g_audio.wav";
+                    googleCompliantAudioFilePath = $"{System.IO.Path.GetDirectoryName(filePath)}\\polinscriptor_g_audio.wav";
                     WAVFile.CopyAndConvert(filePath, googleCompliantAudioFilePath, 16, false);
                     audioBase64 = FileUtility.ReadFileAsBase64(googleCompliantAudioFilePath);
                     WAVFile audioFile = new WAVFile();
@@ -170,6 +171,11 @@ namespace Polinscriptor
             }
         }
 
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        }
+
         private async void Translate_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(filePath))
@@ -196,18 +202,72 @@ namespace Polinscriptor
             }
             else //se il file è lungo...
             {
-                //split audio in file di durata ciascuno di un minuto mentre l'ultimo con durata <1 min creando file separati <nomeFile>-<num_parte>-wav
-                //leggere i file separatamente e tradurli con le API STT short
-                //concatenare man mano i risultati delle varie trascrizioni
+                var part = 1;
+                long sampleIn60Seconds = curAudioFile.SampleRateHz * 59;
+                List<string> filePartNames = new List<string>();
+                if (curAudioFile.Open(googleCompliantAudioFilePath, WAVFile.WAVFileMode.READ) != string.Empty)
+                    return;
+                do
+                {
+                    WAVFile wavPart = new WAVFile();
+                    var partFilename = $"{System.IO.Path.GetDirectoryName(FilePath)}\\polinscriptor_wavPart{part}.wav";
+                    wavPart.Create(partFilename,false,curAudioFile.SampleRateHz,curAudioFile.BitsPerSample);
+                    if(wavPart.Open(partFilename,WAVFile.WAVFileMode.READ_WRITE) == string.Empty)
+                    {
+                        for (int i = 0; i < sampleIn60Seconds; i++)
+                        {
+                            wavPart.AddSample_16bit(curAudioFile.GetNextSampleAs16Bit());
+                            if (curAudioFile.NumSamplesRemaining == 0)
+                                break;
+                        }
+                        wavPart.Close();
+                        part++;
+                        filePartNames.Add(partFilename);
+                    }
 
-                //questa cosa andrà in un for per ogni pezzo di audio...
-                string json = GoogleShortAPIJsonPayload;
+                }
+                while (curAudioFile.NumSamplesRemaining > 0);
+                curAudioFile.Close();
+
+                StringBuilder sb = new StringBuilder();
                 IsRestRequestRunning = true;
                 StatoApp = AppState.Recognizing;
+                bool error = false;
+                foreach (string wavPartFilePath in filePartNames)
+                {
+                    string json = CreateGoogleJSONPayloadOfFile(wavPartFilePath);
+                    var (success, mostProbableTranscription) = await new APIController().TranslateShortText(json);
+                    if (success)
+                    {
+                        sb.Append($"{mostProbableTranscription.Text} ");
+                    }
+                    else
+                    {
+                        error = true;
+                        Debug.WriteLine("errore in parte delle API");
+                    }
+                    
+                }
+                IsRestRequestRunning = false;
+                if (error)
+                    StatoApp = AppState.Error;
+                else
+                    StatoApp = AppState.Done;
+                MostProbableTranscription = sb.ToString();
+                foreach(string tmpPartFile in filePartNames)
+                {
+                    if(File.Exists(tmpPartFile))
+                        File.Delete(tmpPartFile);
+                }
+                if(File.Exists(googleCompliantAudioFilePath))
+                    File.Delete(googleCompliantAudioFilePath);
             }
                 
         }
-        
+
+        #endregion
+
+
         private string GoogleShortAPIJsonPayload
         {
             get
@@ -227,12 +287,42 @@ namespace Polinscriptor
             }
         }
 
+        private string CreateGoogleJSONPayloadOfFile(string filePath)
+        {
+            Debug.WriteLine($"Processing {filePath}");
+            string audioBase64 = FileUtility.ReadFileAsBase64(filePath);
+            WAVFile audioFile = new WAVFile();
+            string openRes = audioFile.Open(filePath, WAVFile.WAVFileMode.READ);
+            if (openRes != string.Empty)
+            {
+                Debug.WriteLine("Errore nella generazione del json di configurazione Google");
+                return null;
+            }
+                
+            var dataConfig = new GoogleDataConfig
+            {
+                SampleRateHz = audioFile.SampleRateHz,
+                Encoding = "LINEAR16",
+                LanguageCode = ((ComboBoxItem)LangCombobox.SelectedItem).Content.ToString()
+            };
+            JObject audioJObj = new JObject();
+            audioJObj["config"] = JObject.FromObject(dataConfig);
+            JObject audioContentJObj = new JObject();
+            audioContentJObj["content"] = audioBase64;
+            audioJObj["audio"] = audioContentJObj;
+
+            audioFile.Close();
+            return audioJObj.ToString();
+        }
+
         private void CopyTranscription_Click(object sender, RoutedEventArgs e)
         {
             Clipboard.SetText(TranscriptionTextBox.Text);
         }
 
-        #endregion
 
+        
+
+        
     }
 }
