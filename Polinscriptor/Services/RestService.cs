@@ -58,6 +58,22 @@ namespace Polinscriptor.Services
             }
         }
 
+        public async Task<APIAnswer> PostRequestFormUrlEncodedFields(string query, IDictionary<string,string> content, IDictionary<string, string> requestHeaders = null)
+        {
+            var formContent = new FormUrlEncodedContent(content);
+            var response = await new HttpClient().PostAsync(query, formContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            try
+            {
+                JObject jsonResponse = JObject.Parse(responseContent);
+                return new APIAnswer(response.StatusCode, jsonResponse);
+
+            } catch(JsonReaderException e)
+            {
+                return new APIAnswer(response.StatusCode, null);
+            }
+        }
+
 
         public async Task<APIAnswer> PostRequest(string query, string jsonContent, IDictionary<string, string> requestHeaders = null)
         {
