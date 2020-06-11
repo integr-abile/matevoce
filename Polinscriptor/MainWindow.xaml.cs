@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using Polinscriptor.Controllers;
 using Polinscriptor.Models;
 using Polinscriptor.Services;
+using Polinscriptor.Services.Audio;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -174,6 +175,11 @@ namespace Polinscriptor
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        }
+
+        private async void ContinuousSpeech_Click(object sender, RoutedEventArgs e)
+        {
+            await ContinuousSpeechService.StreamingMicRecognizeAsync(30); //TODO: parametrizzare il tempo per il quale il sistema deve stare ad ascoltare
         }
 
         private async void Translate_Click(object sender, RoutedEventArgs e)

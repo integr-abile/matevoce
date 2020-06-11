@@ -24,6 +24,7 @@
                 <MenuItem Header="Open" Click="Open_Click"/>
             </MenuItem>
             <MenuItem Click="About_Click" Header="About"/>
+            <MenuItem Click="ContinuousSpeech_Click" Header="Dettatura"/>
         </Menu>
         <Grid DockPanel.Dock="Bottom">
             <Grid.RowDefinitions>

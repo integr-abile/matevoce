@@ -8,6 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="polinspeech-6f20c9425b61.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="polinspeech-6f20c9425b61.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Cloud.Speech.V1" Version="2.0.0" />
+    <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 

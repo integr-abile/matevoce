@@ -14,5 +14,11 @@ namespace Polinscriptor
     public partial class App : Application
     {
         public static ApplicationData Data { get; } = new ApplicationData();
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "polinspeech-6f20c9425b61.json");
+        }
     }
 }
