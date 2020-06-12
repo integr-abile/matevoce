@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Polinscriptor"
         ResizeMode="NoResize"
         mc:Ignorable="d"
-        Title="LoginWindow" Height="300" Width="300">
+        Title="Login" Height="300" Width="300"
+        Icon="Icon16x16.ico">
     <StackPanel Margin="10">
         <TextBlock FontSize="24">Polinscriptor</TextBlock>
         <Label>Nome utente:</Label>

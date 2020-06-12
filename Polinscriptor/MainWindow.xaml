@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Polinscriptor"
         mc:Ignorable="d"
-        Title="Poliscriptor" Height="550" Width="800">
+        Title="Poliscriptor" Height="550" Width="800"
+        Icon="Icon16x16.ico">
     <Window.Resources>
         <ResourceDictionary>
             <Style TargetType="TextBlock"

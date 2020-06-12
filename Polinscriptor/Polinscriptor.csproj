@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="icon16x16.ico" />
+    <None Remove="icon32x32.ico" />
     <None Remove="polinspeech-6f20c9425b61.json" />
   </ItemGroup>
 
@@ -25,6 +27,11 @@
 
   <ItemGroup>
     <Folder Include="Exceptions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="icon16x16.ico" />
+    <Resource Include="icon32x32.ico" />
   </ItemGroup>
 
 </Project>

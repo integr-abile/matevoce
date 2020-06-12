@@ -130,6 +130,8 @@ namespace Polinscriptor
         private void About_Click(object sender, RoutedEventArgs e)
         {
             //TODO: aprire finestra coi riferimenti base alla versione, laboratorio polin, anno, ecc...
+            AboutWindow aboutWindow = new AboutWindow();
+            aboutWindow.Show();
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
