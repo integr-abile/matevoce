@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <AppConfig>App.$(Configuration).config</AppConfig>
+    <ApplicationIcon>icon32x32.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
