@@ -39,6 +39,7 @@ namespace Polinscriptor
         private bool isShortFile;
         private WAVFile curAudioFile;
         private string googleCompliantAudioFilePath;
+        private int audioSampleRateHz; //necessaria a causa di un bug sulla fs della libreria che gestisce i file WAV
         public AppState StatoApp
         {
             get => appState;
@@ -144,13 +145,14 @@ namespace Polinscriptor
                 try
                 {
                     googleCompliantAudioFilePath = $"{System.IO.Path.GetDirectoryName(filePath)}\\polinscriptor_g_audio.wav";
-                    WAVFile.CopyAndConvert(filePath, googleCompliantAudioFilePath, 16, false);
+                    WAVFile.CopyAndConvert(filePath, googleCompliantAudioFilePath, 16, false); //questo meotodo converte anche in mono un file stereo
                     audioBase64 = FileUtility.ReadFileAsBase64(googleCompliantAudioFilePath);
                     WAVFile audioFile = new WAVFile();
                     string openRes = audioFile.Open(googleCompliantAudioFilePath, WAVFile.WAVFileMode.READ);
                     if(openRes == string.Empty)
                     {
                         curAudioFile = audioFile;
+                        audioSampleRateHz = audioFile.SampleRateHz;
                         FileName = System.IO.Path.GetFileName(filePath);
                         FilePath = filePath;
                         
@@ -211,14 +213,18 @@ namespace Polinscriptor
             else //se il file è lungo...
             {
                 var part = 1;
-                long sampleIn60Seconds = curAudioFile.SampleRateHz * 59;
+                //long sampleIn60Seconds = curAudioFile.SampleRateHz * 59;
+                long sampleIn60Seconds = audioSampleRateHz * 59;
                 List<string> filePartNames = new List<string>();
                 if (curAudioFile.Open(googleCompliantAudioFilePath, WAVFile.WAVFileMode.READ) != string.Empty)
                     return;
+                string partsDir = $"{System.IO.Path.GetDirectoryName(FilePath)}\\partsDir";
+                if (!Directory.Exists(partsDir))
+                    Directory.CreateDirectory(partsDir);
                 do
                 {
                     WAVFile wavPart = new WAVFile();
-                    var partFilename = $"{System.IO.Path.GetDirectoryName(FilePath)}\\polinscriptor_wavPart{part}.wav";
+                    var partFilename = $"{partsDir}\\polinscriptor_wavPart{part}.wav";
                     wavPart.Create(partFilename,false,curAudioFile.SampleRateHz,curAudioFile.BitsPerSample);
                     if(wavPart.Open(partFilename,WAVFile.WAVFileMode.READ_WRITE) == string.Empty)
                     {
